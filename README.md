@@ -20,23 +20,66 @@ This is best-effort persistence for normal users. It is not designed to prevent 
 
 Windows 10 Home/Pro reached end of support on 2025-10-14. Use Windows 11 or enroll affected Windows 10 devices in ESU before production deployment.
 
-## Build
+## Recommended Flow
 
-Run this on a Windows build machine:
+For normal users, do not ask them to run PowerShell commands. Build one installer, then give them:
 
-```powershell
-.\scripts\publish.ps1
+```text
+SportsPanelSetup.exe
 ```
 
-The publish output is written to:
+They only need to double-click it. The installer copies the app, writes the URL config, registers login autostart, installs WebView2 Runtime if missing, and starts the panel immediately.
+
+## Build The Installer
+
+On a Windows build machine, install:
+
+- .NET 10 SDK
+- Inno Setup 6
+
+Then run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -Url https://example.com -WidthPx 420
+```
+
+Replace `https://example.com` with the page that should appear in the right-side panel.
+
+The installer is written to:
+
+```text
+artifacts\installer\SportsPanelSetup.exe
+```
+
+Send only that `.exe` to the target user.
+
+## End User Install
+
+The end user should:
+
+1. Double-click `SportsPanelSetup.exe`.
+2. Wait for the installer to finish.
+3. The panel appears automatically.
+
+No URL entry, terminal command, or PowerShell execution policy change is required on the target machine.
+
+## Engineering Publish Only
+
+This only compiles the app and does not install it:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish.ps1
+```
+
+The raw publish output is written to:
 
 ```text
 artifacts\publish
 ```
 
-## Install
+## Script Install
 
-Run this for the target Windows user:
+This is mainly for development and debugging. For real users, prefer `SportsPanelSetup.exe`.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 /Url=https://example.com /WidthPx=420 /PerUser
@@ -50,10 +93,16 @@ Supported installer arguments:
 - `/InstallDir=<path>`: optional. Defaults to `%LOCALAPPDATA%\Programs\SportsPanel`.
 - `/PublishDir=<path>`: optional. Defaults to `artifacts\publish`.
 
-The installer writes configuration to:
+The PowerShell script installer writes configuration to:
 
 ```text
 %ProgramData%\SportsPanel\panel.json
+```
+
+The formal `SportsPanelSetup.exe` writes per-user configuration to:
+
+```text
+%LOCALAPPDATA%\SportsPanel\panel.json
 ```
 
 Example:
@@ -68,6 +117,10 @@ Example:
 
 ## Uninstall
 
+For normal users, uninstall from Windows Settings > Apps > Installed apps > Sports Panel.
+
+For script installs:
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
 ```
@@ -80,7 +133,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1 /RemoveConfig
 
 ## Operational Notes
 
-- The scheduled task is named `SportsPanel` and starts `SportsPanel.Watchdog.exe` at user logon.
+- The formal installer registers `SportsPanel.Watchdog.exe` in `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
+- The script installer creates a scheduled task named `SportsPanel`.
 - The watchdog checks every 3 seconds and starts `SportsPanel.Host.exe` if it is not running in the current user session.
 - The host uses `%LOCALAPPDATA%\SportsPanel\WebView2` for WebView2 user data.
 - Watchdog diagnostics are written to `%LOCALAPPDATA%\SportsPanel\logs\watchdog.log`.

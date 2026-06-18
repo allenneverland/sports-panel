@@ -23,29 +23,32 @@ internal sealed class PanelOptions
 
     public string? ConfigurationError { get; }
 
-    public static string DefaultPath =>
-        Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "SportsPanel",
-            "panel.json");
+    public static string DefaultPath => CommonPath;
+
+    public static string CommonPath =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SportsPanel", "panel.json");
+
+    public static string UserPath =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SportsPanel", "panel.json");
 
     public static PanelOptions Load()
     {
-        if (!File.Exists(DefaultPath))
+        var path = FindConfigurationPath();
+        if (path is null)
         {
-            return Error($"Configuration file not found: {DefaultPath}");
+            return Error($"Configuration file not found. Checked: {CommonPath}; {UserPath}");
         }
 
         try
         {
-            var json = File.ReadAllText(DefaultPath);
+            var json = File.ReadAllText(path);
             var file = JsonSerializer.Deserialize<PanelOptionsFile>(
                 json,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (file is null)
             {
-                return Error($"Configuration file is empty: {DefaultPath}");
+                return Error($"Configuration file is empty: {path}");
             }
 
             if (!TryCreateWebUri(file.Url, out var url))
@@ -69,6 +72,21 @@ internal sealed class PanelOptions
         {
             return Error($"Configuration file could not be read: {ex.Message}");
         }
+    }
+
+    private static string? FindConfigurationPath()
+    {
+        if (File.Exists(CommonPath))
+        {
+            return CommonPath;
+        }
+
+        if (File.Exists(UserPath))
+        {
+            return UserPath;
+        }
+
+        return null;
     }
 
     private static PanelOptions Error(string message) =>
@@ -100,4 +118,3 @@ internal sealed class PanelOptions
         public string? Monitor { get; set; }
     }
 }
-
