@@ -70,6 +70,20 @@ function Find-InnoSetupCompiler {
 $iscc = Find-InnoSetupCompiler
 
 & (Join-Path $PSScriptRoot "publish.ps1")
+if ($LASTEXITCODE -ne 0) {
+    throw "Publish failed."
+}
+
+$requiredPublishFiles = @(
+    (Join-Path $publishDir "SportsPanel.Host.exe"),
+    (Join-Path $publishDir "SportsPanel.Watchdog.exe")
+)
+
+foreach ($file in $requiredPublishFiles) {
+    if (-not (Test-Path $file)) {
+        throw "Published file was not found: $file"
+    }
+}
 
 New-Item -ItemType Directory -Path $installerDir -Force | Out-Null
 
