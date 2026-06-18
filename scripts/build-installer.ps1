@@ -35,11 +35,30 @@ function Find-InnoSetupCompiler {
     }
 
     $candidates = @(
+        (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"),
         "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
         "${env:ProgramFiles}\Inno Setup 6\ISCC.exe"
     )
 
     foreach ($candidate in $candidates) {
+        if ($candidate -and (Test-Path $candidate)) {
+            return $candidate
+        }
+    }
+
+    $registryKeys = @(
+        "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Inno Setup 6_is1",
+        "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Inno Setup 6_is1",
+        "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Inno Setup 6_is1"
+    )
+
+    foreach ($key in $registryKeys) {
+        $installLocation = (Get-ItemProperty -Path $key -ErrorAction SilentlyContinue).InstallLocation
+        if ([string]::IsNullOrWhiteSpace($installLocation)) {
+            continue
+        }
+
+        $candidate = Join-Path $installLocation "ISCC.exe"
         if (Test-Path $candidate) {
             return $candidate
         }
