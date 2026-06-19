@@ -28,7 +28,7 @@ For normal users, do not ask them to run PowerShell commands. Build one installe
 SportsPanelSetup.exe
 ```
 
-They only need to double-click it. The installer copies the app, writes the URL config, registers login autostart, installs WebView2 Runtime if missing, and starts the panel immediately.
+They only need to double-click it. The installer asks for the URL and panel width, copies the app, writes the config, registers login autostart, installs WebView2 Runtime if missing, and starts the panel immediately.
 
 ## Build The Installer
 
@@ -40,10 +40,16 @@ On a Windows build machine, install:
 Then run:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -Url https://example.com -WidthPx 420
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
 ```
 
-Replace `https://example.com` with the page that should appear in the right-side panel.
+Optional defaults can be prefilled in the installer wizard:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -DefaultUrl https://example.com -DefaultWidthPx 420
+```
+
+The older `-Url` and `-WidthPx` parameter names are still accepted as aliases for the defaults.
 
 The installer is written to:
 
@@ -58,10 +64,11 @@ Send only that `.exe` to the target user.
 The end user should:
 
 1. Double-click `SportsPanelSetup.exe`.
-2. Wait for the installer to finish.
-3. The panel appears automatically.
+2. Enter the web page URL and panel width.
+3. Wait for the installer to finish.
+4. The panel appears automatically.
 
-No URL entry, terminal command, or PowerShell execution policy change is required on the target machine.
+No terminal command or PowerShell execution policy change is required on the target machine.
 
 ## Engineering Publish Only
 

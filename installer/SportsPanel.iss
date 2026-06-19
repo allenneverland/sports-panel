@@ -8,8 +8,11 @@
 #ifndef InstallerOutputDir
 #define InstallerOutputDir "..\artifacts\installer"
 #endif
-#ifndef PanelConfig
-#define PanelConfig "..\artifacts\installer\panel.json"
+#ifndef DefaultPanelUrl
+#define DefaultPanelUrl "https://example.com"
+#endif
+#ifndef DefaultPanelWidth
+#define DefaultPanelWidth "420"
 #endif
 #ifndef WebView2Installer
 #define WebView2Installer "..\artifacts\installer\MicrosoftEdgeWebview2Setup.exe"
@@ -37,7 +40,6 @@ WizardStyle=modern
 
 [Files]
 Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#PanelConfig}"; DestDir: "{localappdata}\SportsPanel"; DestName: "panel.json"; Flags: ignoreversion
 Source: "{#WebView2Installer}"; DestDir: "{tmp}"; DestName: "MicrosoftEdgeWebview2Setup.exe"; Flags: deleteafterinstall; Check: not IsWebView2RuntimeInstalled
 
 [Registry]
@@ -55,6 +57,9 @@ Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""SportsPanel.Host.exe"" /F"; F
 Type: filesandordirs; Name: "{localappdata}\SportsPanel"
 
 [Code]
+var
+  PanelPage: TInputQueryWizardPage;
+
 function HasWebView2Version(RootKey: Integer; SubKey: String): Boolean;
 var
   Version: String;
@@ -75,6 +80,98 @@ begin
     HasWebView2Version(HKLM, WowClientKey);
 end;
 
+function JsonEscape(Value: String): String;
+var
+  Index: Integer;
+  Character: String;
+begin
+  Result := '';
+  for Index := 1 to Length(Value) do
+  begin
+    Character := Copy(Value, Index, 1);
+    if Character = '\' then
+      Result := Result + '\\'
+    else if Character = '"' then
+      Result := Result + '\"'
+    else
+      Result := Result + Character;
+  end;
+end;
+
+function IsValidUrl(Value: String): Boolean;
+var
+  LowerValue: String;
+begin
+  LowerValue := Lowercase(Trim(Value));
+  Result := (Pos('https://', LowerValue) = 1) or (Pos('http://', LowerValue) = 1);
+end;
+
+function TryParseWidth(Value: String; var Width: Integer): Boolean;
+var
+  Code: Integer;
+begin
+  Val(Trim(Value), Width, Code);
+  Result := (Code = 0) and (Width > 0);
+end;
+
+procedure InitializeWizard;
+begin
+  PanelPage := CreateInputQueryPage(
+    wpWelcome,
+    'Sports Panel Settings',
+    'Enter the web page and right-side panel width.',
+    'These settings are saved on this Windows user account.');
+  PanelPage.Add('Web page URL:', False);
+  PanelPage.Add('Panel width in pixels:', False);
+  PanelPage.Values[0] := '{#DefaultPanelUrl}';
+  PanelPage.Values[1] := '{#DefaultPanelWidth}';
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  Width: Integer;
+begin
+  Result := True;
+  if CurPageID <> PanelPage.ID then
+    Exit;
+
+  if not IsValidUrl(PanelPage.Values[0]) then
+  begin
+    MsgBox('Enter a full web page URL, for example https://allenneverland.org.', mbError, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  if not TryParseWidth(PanelPage.Values[1], Width) then
+  begin
+    MsgBox('Enter a panel width greater than 0, for example 420.', mbError, MB_OK);
+    Result := False;
+  end;
+end;
+
+procedure WritePanelConfig;
+var
+  ConfigDir: String;
+  ConfigPath: String;
+  ConfigText: String;
+  Width: Integer;
+begin
+  TryParseWidth(PanelPage.Values[1], Width);
+  ConfigDir := ExpandConstant('{localappdata}\SportsPanel');
+  ConfigPath := ConfigDir + '\panel.json';
+  ForceDirectories(ConfigDir);
+
+  ConfigText :=
+    '{' + #13#10 +
+    '  "url": "' + JsonEscape(Trim(PanelPage.Values[0])) + '",' + #13#10 +
+    '  "widthPx": ' + IntToStr(Width) + ',' + #13#10 +
+    '  "monitor": "primary"' + #13#10 +
+    '}';
+
+  if not SaveStringToFile(ConfigPath, ConfigText, False) then
+    RaiseException('Could not write panel configuration: ' + ConfigPath);
+end;
+
 procedure StopProcess(ImageName: String);
 var
   ResultCode: Integer;
@@ -89,4 +186,7 @@ begin
     StopProcess('SportsPanel.Watchdog.exe');
     StopProcess('SportsPanel.Host.exe');
   end;
+
+  if CurStep = ssPostInstall then
+    WritePanelConfig;
 end;
