@@ -7,6 +7,8 @@ param(
     [Alias("WidthPx")]
     [int]$DefaultWidthPx = 420,
 
+    [string]$UninstallPassword = "8888",
+
     [string]$Version = "1.0.0"
 )
 
@@ -26,6 +28,14 @@ if (-not [Uri]::TryCreate($DefaultUrl, [UriKind]::Absolute, [ref]$uri) -or
 
 if ($DefaultWidthPx -le 0) {
     throw "The -DefaultWidthPx value must be greater than zero."
+}
+
+if ([string]::IsNullOrWhiteSpace($UninstallPassword)) {
+    throw "The -UninstallPassword value must not be empty."
+}
+
+if ($UninstallPassword.Contains("'")) {
+    throw "The -UninstallPassword value must not contain a single quote."
 }
 
 function Find-InnoSetupCompiler {
@@ -102,6 +112,7 @@ if (-not (Test-Path $webView2Installer)) {
     "/DInstallerOutputDir=$installerDir" `
     "/DDefaultPanelUrl=$($uri.AbsoluteUri)" `
     "/DDefaultPanelWidth=$DefaultWidthPx" `
+    "/DUninstallPassword=$UninstallPassword" `
     "/DWebView2Installer=$webView2Installer"
 
 if ($LASTEXITCODE -ne 0) {

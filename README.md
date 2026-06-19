@@ -46,7 +46,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps
 Optional defaults can be prefilled in the installer wizard:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -DefaultUrl https://example.com -DefaultWidthPx 420
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -DefaultUrl https://example.com -DefaultWidthPx 420 -UninstallPassword your-password
 ```
 
 The older `-Url` and `-WidthPx` parameter names are still accepted as aliases for the defaults.
@@ -55,6 +55,7 @@ Without arguments, the default installer settings are:
 
 - URL: `https://allenneverland.org`
 - Width: `420`
+- Uninstall password: `8888`
 
 The installer is written to:
 
@@ -130,7 +131,9 @@ Example:
 
 ## Uninstall
 
-For normal users, uninstall from Windows Settings > Apps > Installed apps > Sports Panel.
+For normal users, uninstall from Windows Settings > Apps > Installed apps > Sports Panel. The uninstaller asks for the uninstall password.
+
+This is best-effort protection against accidental or casual removal. A local administrator can still remove files or startup entries manually.
 
 For script installs:
 

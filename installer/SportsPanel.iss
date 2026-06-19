@@ -14,6 +14,9 @@
 #ifndef DefaultPanelWidth
 #define DefaultPanelWidth "420"
 #endif
+#ifndef UninstallPassword
+#define UninstallPassword "8888"
+#endif
 #ifndef WebView2Installer
 #define WebView2Installer "..\artifacts\installer\MicrosoftEdgeWebview2Setup.exe"
 #endif
@@ -141,6 +144,11 @@ begin
   Result := ModePage.Values[1];
 end;
 
+function IsValidUninstallPassword(Value: String): Boolean;
+begin
+  Result := Value = '{#UninstallPassword}';
+end;
+
 procedure InitializeWizard;
 begin
   ModePage := CreateInputOptionPage(
@@ -243,4 +251,19 @@ begin
 
   if CurStep = ssPostInstall then
     WritePanelConfig;
+end;
+
+function InitializeUninstall: Boolean;
+var
+  Password: String;
+begin
+  Result := InputQuery('Sports Panel Uninstall', 'Enter the uninstall password:', Password);
+  if not Result then
+    Exit;
+
+  if not IsValidUninstallPassword(Password) then
+  begin
+    MsgBox('Incorrect uninstall password.', mbError, MB_OK);
+    Result := False;
+  end;
 end;
