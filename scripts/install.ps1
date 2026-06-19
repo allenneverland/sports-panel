@@ -6,7 +6,7 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 
 $options = @{
     Url = $null
-    WidthPx = 420
+    WidthPx = 600
     InstallDir = Join-Path $env:LOCALAPPDATA "Programs\SportsPanel"
     PublishDir = Join-Path $repoRoot "artifacts\publish"
     SkipWebView2Install = $false

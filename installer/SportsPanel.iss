@@ -12,7 +12,7 @@
 #define DefaultPanelUrl "https://allenneverland.org"
 #endif
 #ifndef DefaultPanelWidth
-#define DefaultPanelWidth "420"
+#define DefaultPanelWidth "600"
 #endif
 #ifndef UninstallPassword
 #define UninstallPassword "8888"
@@ -150,10 +150,10 @@ begin
     wpWelcome,
     'Sports Panel Settings',
     'Choose the setup mode.',
-    'Default setup uses https://allenneverland.org and a panel width of 420 pixels.',
+    'Default setup uses https://allenneverland.org and a panel width of 600 pixels.',
     True,
     False);
-  ModePage.Add('Default settings (https://allenneverland.org, width 420)');
+  ModePage.Add('Default settings (https://allenneverland.org, width 600)');
   ModePage.Add('Custom settings');
   ModePage.Values[0] := True;
 
@@ -190,7 +190,7 @@ begin
 
   if not TryParseWidth(PanelPage.Values[1], Width) then
   begin
-    MsgBox('Enter a panel width greater than 0, for example 420.', mbError, MB_OK);
+    MsgBox('Enter a panel width greater than 0, for example 600.', mbError, MB_OK);
     Result := False;
   end;
 end;

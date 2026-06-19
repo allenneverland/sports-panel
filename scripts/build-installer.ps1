@@ -5,7 +5,7 @@ param(
     [string]$DefaultUrl = "https://allenneverland.org",
 
     [Alias("WidthPx")]
-    [int]$DefaultWidthPx = 420,
+    [int]$DefaultWidthPx = 600,
 
     [string]$UninstallPassword = "8888",
 

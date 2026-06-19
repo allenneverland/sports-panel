@@ -46,7 +46,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps
 Optional defaults can be prefilled in the installer wizard:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -DefaultUrl https://example.com -DefaultWidthPx 420 -UninstallPassword your-password
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -DefaultUrl https://example.com -DefaultWidthPx 600 -UninstallPassword your-password
 ```
 
 The older `-Url` and `-WidthPx` parameter names are still accepted as aliases for the defaults.
@@ -54,7 +54,7 @@ The older `-Url` and `-WidthPx` parameter names are still accepted as aliases fo
 Without arguments, the default installer settings are:
 
 - URL: `https://allenneverland.org`
-- Width: `420`
+- Width: `600`
 - Uninstall password: `8888`
 
 The installer is written to:
@@ -96,13 +96,13 @@ artifacts\publish
 This is mainly for development and debugging. For real users, prefer `SportsPanelSetup.exe`.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 /Url=https://example.com /WidthPx=420 /PerUser
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 /Url=https://example.com /WidthPx=600 /PerUser
 ```
 
 Supported installer arguments:
 
 - `/Url=<https-url>`: required. The web page to show in the panel. `http` URLs are also accepted for local intranet deployments.
-- `/WidthPx=420`: optional. Right panel width in pixels.
+- `/WidthPx=600`: optional. Right panel width in pixels.
 - `/PerUser`: accepted for clarity; per-user install is the default.
 - `/InstallDir=<path>`: optional. Defaults to `%LOCALAPPDATA%\Programs\SportsPanel`.
 - `/PublishDir=<path>`: optional. Defaults to `artifacts\publish`.
@@ -124,7 +124,7 @@ Example:
 ```json
 {
   "url": "https://example.com",
-  "widthPx": 420,
+  "widthPx": 600,
   "monitor": "primary"
 }
 ```

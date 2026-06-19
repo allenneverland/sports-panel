@@ -4,7 +4,7 @@ namespace SportsPanel.Host;
 
 internal sealed class PanelOptions
 {
-    private const int DefaultWidthPx = 420;
+    private const int DefaultWidthPx = 600;
     private const string DefaultMonitor = "primary";
 
     private PanelOptions(Uri? url, int widthPx, string monitor, string? configurationError)
