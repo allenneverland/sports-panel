@@ -255,11 +255,59 @@ end;
 
 function InitializeUninstall: Boolean;
 var
+  CancelButton: TNewButton;
+  Form: TSetupForm;
+  OkButton: TNewButton;
   Password: String;
+  PasswordEdit: TNewEdit;
+  Prompt: TNewStaticText;
 begin
-  Result := InputQuery('Sports Panel Uninstall', 'Enter the uninstall password:', Password);
-  if not Result then
-    Exit;
+  Result := False;
+
+  Form := CreateCustomForm;
+  try
+    Form.Caption := 'Sports Panel Uninstall';
+    Form.ClientWidth := ScaleX(360);
+    Form.ClientHeight := ScaleY(128);
+
+    Prompt := TNewStaticText.Create(Form);
+    Prompt.Parent := Form;
+    Prompt.Left := ScaleX(12);
+    Prompt.Top := ScaleY(12);
+    Prompt.Width := ScaleX(336);
+    Prompt.Caption := 'Enter the uninstall password:';
+
+    PasswordEdit := TNewEdit.Create(Form);
+    PasswordEdit.Parent := Form;
+    PasswordEdit.Left := ScaleX(12);
+    PasswordEdit.Top := ScaleY(36);
+    PasswordEdit.Width := ScaleX(336);
+
+    OkButton := TNewButton.Create(Form);
+    OkButton.Parent := Form;
+    OkButton.Left := ScaleX(184);
+    OkButton.Top := ScaleY(84);
+    OkButton.Width := ScaleX(80);
+    OkButton.Height := ScaleY(24);
+    OkButton.Caption := 'OK';
+    OkButton.ModalResult := 1;
+
+    CancelButton := TNewButton.Create(Form);
+    CancelButton.Parent := Form;
+    CancelButton.Left := ScaleX(268);
+    CancelButton.Top := ScaleY(84);
+    CancelButton.Width := ScaleX(80);
+    CancelButton.Height := ScaleY(24);
+    CancelButton.Caption := 'Cancel';
+    CancelButton.ModalResult := 2;
+
+    if Form.ShowModal <> 1 then
+      Exit;
+
+    Password := PasswordEdit.Text;
+  finally
+    Form.Free;
+  end;
 
   if not IsValidUninstallPassword(Password) then
   begin
