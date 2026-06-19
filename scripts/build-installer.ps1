@@ -38,6 +38,10 @@ if ($UninstallPassword.Contains("'")) {
     throw "The -UninstallPassword value must not contain a single quote."
 }
 
+if ($UninstallPassword.Contains('"')) {
+    throw "The -UninstallPassword value must not contain a double quote."
+}
+
 function Find-InnoSetupCompiler {
     $command = Get-Command "ISCC.exe" -ErrorAction SilentlyContinue
     if ($command) {
@@ -86,7 +90,8 @@ if ($LASTEXITCODE -ne 0) {
 
 $requiredPublishFiles = @(
     (Join-Path $publishDir "SportsPanel.Host.exe"),
-    (Join-Path $publishDir "SportsPanel.Watchdog.exe")
+    (Join-Path $publishDir "SportsPanel.Watchdog.exe"),
+    (Join-Path $publishDir "SportsPanel.UninstallGuard.exe")
 )
 
 foreach ($file in $requiredPublishFiles) {

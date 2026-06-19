@@ -48,5 +48,6 @@ New-Item -ItemType Directory -Path $output -Force | Out-Null
 
 Invoke-DotNetPublish -ProjectPath (Join-Path $repoRoot "src\SportsPanel.Host\SportsPanel.Host.csproj")
 Invoke-DotNetPublish -ProjectPath (Join-Path $repoRoot "src\SportsPanel.Watchdog\SportsPanel.Watchdog.csproj")
+Invoke-DotNetPublish -ProjectPath (Join-Path $repoRoot "src\SportsPanel.UninstallGuard\SportsPanel.UninstallGuard.csproj")
 
 Write-Host "Published to $output"
