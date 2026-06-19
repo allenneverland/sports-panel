@@ -109,10 +109,31 @@ end;
 
 function TryParseWidth(Value: String; var Width: Integer): Boolean;
 var
-  Code: Integer;
+  CleanValue: String;
+  Character: String;
+  Digit: Integer;
+  Index: Integer;
 begin
-  Val(Trim(Value), Width, Code);
-  Result := (Code = 0) and (Width > 0);
+  CleanValue := Trim(Value);
+  Width := 0;
+  Result := CleanValue <> '';
+  if not Result then
+    Exit;
+
+  for Index := 1 to Length(CleanValue) do
+  begin
+    Character := Copy(CleanValue, Index, 1);
+    Digit := Pos(Character, '0123456789') - 1;
+    if Digit < 0 then
+    begin
+      Result := False;
+      Exit;
+    end;
+
+    Width := (Width * 10) + Digit;
+  end;
+
+  Result := Width > 0;
 end;
 
 function IsCustomConfiguration: Boolean;
