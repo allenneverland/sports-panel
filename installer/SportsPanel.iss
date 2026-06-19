@@ -264,7 +264,7 @@ var
 begin
   Result := False;
 
-  Form := CreateCustomForm;
+  Form := CreateCustomForm();
   try
     Form.Caption := 'Sports Panel Uninstall';
     Form.ClientWidth := ScaleX(360);
