@@ -64,7 +64,6 @@ internal sealed class PanelForm : Form
         ShowInTaskbar = false;
         SizeGripStyle = SizeGripStyle.Hide;
         StartPosition = FormStartPosition.Manual;
-        TopMost = true;
 
         _webView = new WebView2
         {
@@ -229,13 +228,10 @@ internal sealed class PanelForm : Form
             case NativeMethods.ABN_FULLSCREENAPP:
                 if (isFullScreenOpening)
                 {
-                    TopMost = false;
                     _appBar?.SendBehindFullScreenApp();
                 }
                 else
                 {
-                    TopMost = true;
-                    _appBar?.RestoreTopMost();
                     PositionAppBar();
                 }
 

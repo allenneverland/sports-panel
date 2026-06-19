@@ -27,7 +27,6 @@ internal static class NativeMethods
     public const int ABN_FULLSCREENAPP = 0x00000002;
 
     public static readonly nint HwndBottom = 1;
-    public static readonly nint HwndTopMost = -1;
 
     public const uint SWP_NOSIZE = 0x0001;
     public const uint SWP_NOMOVE = 0x0002;

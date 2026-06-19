@@ -90,18 +90,6 @@ internal sealed class AppBar : IDisposable
             NativeMethods.SWP_NOMOVE | NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE);
     }
 
-    public void RestoreTopMost()
-    {
-        NativeMethods.SetWindowPos(
-            _handle,
-            NativeMethods.HwndTopMost,
-            0,
-            0,
-            0,
-            0,
-            NativeMethods.SWP_NOMOVE | NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE);
-    }
-
     public void Dispose()
     {
         if (!_registered)
