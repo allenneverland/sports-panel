@@ -9,7 +9,7 @@
 #define InstallerOutputDir "..\artifacts\installer"
 #endif
 #ifndef DefaultPanelUrl
-#define DefaultPanelUrl "https://example.com"
+#define DefaultPanelUrl "https://allenneverland.org"
 #endif
 #ifndef DefaultPanelWidth
 #define DefaultPanelWidth "420"
@@ -58,6 +58,7 @@ Type: filesandordirs; Name: "{localappdata}\SportsPanel"
 
 [Code]
 var
+  ModePage: TInputOptionWizardPage;
   PanelPage: TInputQueryWizardPage;
 
 function HasWebView2Version(RootKey: Integer; SubKey: String): Boolean;
@@ -114,17 +115,38 @@ begin
   Result := (Code = 0) and (Width > 0);
 end;
 
+function IsCustomConfiguration: Boolean;
+begin
+  Result := ModePage.Values[1];
+end;
+
 procedure InitializeWizard;
 begin
-  PanelPage := CreateInputQueryPage(
+  ModePage := CreateInputOptionPage(
     wpWelcome,
     'Sports Panel Settings',
+    'Choose the setup mode.',
+    'Default setup uses https://allenneverland.org and a panel width of 420 pixels.',
+    True,
+    False);
+  ModePage.Add('Default settings (https://allenneverland.org, width 420)');
+  ModePage.Add('Custom settings');
+  ModePage.Values[0] := True;
+
+  PanelPage := CreateInputQueryPage(
+    ModePage.ID,
+    'Custom Sports Panel Settings',
     'Enter the web page and right-side panel width.',
     'These settings are saved on this Windows user account.');
   PanelPage.Add('Web page URL:', False);
   PanelPage.Add('Panel width in pixels:', False);
   PanelPage.Values[0] := '{#DefaultPanelUrl}';
   PanelPage.Values[1] := '{#DefaultPanelWidth}';
+end;
+
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  Result := (PageID = PanelPage.ID) and not IsCustomConfiguration;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -154,16 +176,27 @@ var
   ConfigDir: String;
   ConfigPath: String;
   ConfigText: String;
+  PanelUrl: String;
   Width: Integer;
 begin
-  TryParseWidth(PanelPage.Values[1], Width);
+  if IsCustomConfiguration then
+  begin
+    PanelUrl := Trim(PanelPage.Values[0]);
+    TryParseWidth(PanelPage.Values[1], Width);
+  end
+  else
+  begin
+    PanelUrl := '{#DefaultPanelUrl}';
+    TryParseWidth('{#DefaultPanelWidth}', Width);
+  end;
+
   ConfigDir := ExpandConstant('{localappdata}\SportsPanel');
   ConfigPath := ConfigDir + '\panel.json';
   ForceDirectories(ConfigDir);
 
   ConfigText :=
     '{' + #13#10 +
-    '  "url": "' + JsonEscape(Trim(PanelPage.Values[0])) + '",' + #13#10 +
+    '  "url": "' + JsonEscape(PanelUrl) + '",' + #13#10 +
     '  "widthPx": ' + IntToStr(Width) + ',' + #13#10 +
     '  "monitor": "primary"' + #13#10 +
     '}';

@@ -2,7 +2,7 @@
 
 param(
     [Alias("Url")]
-    [string]$DefaultUrl = "https://example.com",
+    [string]$DefaultUrl = "https://allenneverland.org",
 
     [Alias("WidthPx")]
     [int]$DefaultWidthPx = 420,

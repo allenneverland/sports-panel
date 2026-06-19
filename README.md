@@ -28,7 +28,7 @@ For normal users, do not ask them to run PowerShell commands. Build one installe
 SportsPanelSetup.exe
 ```
 
-They only need to double-click it. The installer asks for the URL and panel width, copies the app, writes the config, registers login autostart, installs WebView2 Runtime if missing, and starts the panel immediately.
+They only need to double-click it. The installer offers Default and Custom setup modes, copies the app, writes the config, registers login autostart, installs WebView2 Runtime if missing, and starts the panel immediately.
 
 ## Build The Installer
 
@@ -51,6 +51,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps
 
 The older `-Url` and `-WidthPx` parameter names are still accepted as aliases for the defaults.
 
+Without arguments, the default installer settings are:
+
+- URL: `https://allenneverland.org`
+- Width: `420`
+
 The installer is written to:
 
 ```text
@@ -64,9 +69,10 @@ Send only that `.exe` to the target user.
 The end user should:
 
 1. Double-click `SportsPanelSetup.exe`.
-2. Enter the web page URL and panel width.
-3. Wait for the installer to finish.
-4. The panel appears automatically.
+2. Choose `Default settings` or `Custom settings`.
+3. If using Custom, enter the web page URL and panel width.
+4. Wait for the installer to finish.
+5. The panel appears automatically.
 
 No terminal command or PowerShell execution policy change is required on the target machine.
 
