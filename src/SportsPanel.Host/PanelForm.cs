@@ -11,6 +11,39 @@ namespace SportsPanel.Host;
 internal sealed class PanelForm : Form
 {
     private const int AppBarCallback = NativeMethods.WM_APP + 1;
+    private const string HideScrollbarsScript = """
+        (() => {
+            const css = `
+                html, body {
+                    scrollbar-width: none !important;
+                    -ms-overflow-style: none !important;
+                }
+
+                *::-webkit-scrollbar {
+                    width: 0 !important;
+                    height: 0 !important;
+                    display: none !important;
+                }
+            `;
+
+            const install = () => {
+                if (document.querySelector('style[data-sports-panel-scrollbars="hidden"]')) {
+                    return;
+                }
+
+                const style = document.createElement('style');
+                style.setAttribute('data-sports-panel-scrollbars', 'hidden');
+                style.textContent = css;
+                (document.head || document.documentElement).appendChild(style);
+            };
+
+            if (document.documentElement) {
+                install();
+            } else {
+                document.addEventListener('DOMContentLoaded', install, { once: true });
+            }
+        })();
+        """;
 
     private readonly PanelOptions _options;
     private readonly WebView2 _webView;
@@ -169,6 +202,7 @@ internal sealed class PanelForm : Form
             await _webView.EnsureCoreWebView2Async(environment);
             _webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
             _webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
+            await _webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(HideScrollbarsScript);
 
             if (_options.Url is not null)
             {
