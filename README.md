@@ -6,6 +6,7 @@ Windows right-side fixed web panel. The host is a native WinForms AppBar that em
 
 - Starts automatically when the current Windows user logs on.
 - Pins a WebView2 browser panel to the right edge of the primary monitor.
+- Locks WebView2 navigation to the configured URL origin.
 - Registers as a Windows AppBar, so maximized windows use the remaining desktop area.
 - Hides normal close UI and ignores `Alt+F4` / `WM_CLOSE`.
 - Runs a watchdog that restarts the host if a user kills it or it crashes.
@@ -154,4 +155,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1 /RemoveConfig
 - The watchdog checks every 3 seconds and starts `SportsPanel.Host.exe` if it is not running in the current user session.
 - The host uses `%LOCALAPPDATA%\SportsPanel\WebView2` for WebView2 user data.
 - Watchdog diagnostics are written to `%LOCALAPPDATA%\SportsPanel\logs\watchdog.log`.
+- The host allows navigation only to the configured URL origin. External links, redirects, popups, and iframes are blocked; subdomains are not allowed unless they are the configured host.
+- This navigation lock is not a local configuration tamper-proofing mechanism. A user who can change `panel.json` can change the allowed origin for the next host start.
 - For unattended boot-to-panel behavior, configure Windows auto-login separately for a dedicated standard local account, then install this app under that account.

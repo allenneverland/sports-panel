@@ -46,6 +46,7 @@ internal sealed class PanelForm : Form
         """;
 
     private readonly PanelOptions _options;
+    private readonly NavigationPolicy? _navigationPolicy;
     private readonly WebView2 _webView;
     private readonly Label _statusLabel;
     private AppBar? _appBar;
@@ -54,6 +55,7 @@ internal sealed class PanelForm : Form
     public PanelForm(PanelOptions options)
     {
         _options = options;
+        _navigationPolicy = options.Url is null ? null : new NavigationPolicy(options.Url);
 
         Text = "Sports Panel";
         BackColor = Color.Black;
@@ -201,6 +203,7 @@ internal sealed class PanelForm : Form
             await _webView.EnsureCoreWebView2Async(environment);
             _webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
             _webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
+            InstallNavigationLock();
             await _webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(HideScrollbarsScript);
 
             if (_options.Url is not null)
@@ -215,6 +218,41 @@ internal sealed class PanelForm : Form
         {
             ShowStatus($"WebView2 could not be initialized.{Environment.NewLine}{ex.Message}");
         }
+    }
+
+    private void InstallNavigationLock()
+    {
+        if (_navigationPolicy is null)
+        {
+            return;
+        }
+
+        var coreWebView = _webView.CoreWebView2;
+        coreWebView.NavigationStarting += (_, e) =>
+        {
+            if (!_navigationPolicy.IsAllowed(e.Uri))
+            {
+                e.Cancel = true;
+            }
+        };
+
+        coreWebView.FrameNavigationStarting += (_, e) =>
+        {
+            if (!_navigationPolicy.IsAllowed(e.Uri))
+            {
+                e.Cancel = true;
+            }
+        };
+
+        coreWebView.NewWindowRequested += (_, e) =>
+        {
+            e.Handled = true;
+
+            if (_navigationPolicy.IsAllowed(e.Uri))
+            {
+                coreWebView.Navigate(e.Uri);
+            }
+        };
     }
 
     private void HandleAppBarCallback(int notification, bool isFullScreenOpening)
