@@ -2,7 +2,7 @@
 
 param(
     [Alias("Url")]
-    [string]$DefaultUrl = "https://allenneverland.org",
+    [string]$DefaultUrl = "https://sport.joburg",
 
     [Alias("WidthPx")]
     [int]$DefaultWidthPx = 600,

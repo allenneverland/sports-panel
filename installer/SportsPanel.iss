@@ -9,7 +9,7 @@
 #define InstallerOutputDir "..\artifacts\installer"
 #endif
 #ifndef DefaultPanelUrl
-#define DefaultPanelUrl "https://allenneverland.org"
+#define DefaultPanelUrl "https://sport.joburg"
 #endif
 #ifndef DefaultPanelWidth
 #define DefaultPanelWidth "600"
@@ -150,10 +150,10 @@ begin
     wpWelcome,
     'Sports Panel Settings',
     'Choose the setup mode.',
-    'Default setup uses https://allenneverland.org and a panel width of 600 pixels.',
+    'Default setup uses https://sport.joburg and a panel width of 600 pixels.',
     True,
     False);
-  ModePage.Add('Default settings (https://allenneverland.org, width 600)');
+  ModePage.Add('Default settings (https://sport.joburg, width 600)');
   ModePage.Add('Custom settings');
   ModePage.Values[0] := True;
 
@@ -183,7 +183,7 @@ begin
 
   if not IsValidUrl(PanelPage.Values[0]) then
   begin
-    MsgBox('Enter a full web page URL, for example https://allenneverland.org.', mbError, MB_OK);
+    MsgBox('Enter a full web page URL, for example https://sport.joburg.', mbError, MB_OK);
     Result := False;
     Exit;
   end;

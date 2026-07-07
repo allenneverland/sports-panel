@@ -54,7 +54,7 @@ The older `-Url` and `-WidthPx` parameter names are still accepted as aliases fo
 
 Without arguments, the default installer settings are:
 
-- URL: `https://allenneverland.org`
+- URL: `https://sport.joburg`
 - Width: `600`
 - Uninstall password: `8888`
 
