@@ -3,9 +3,9 @@
 $ErrorActionPreference = "Stop"
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$fixedPanelUrl = "https://sport.joburg/?paymentChannel=a"
 
 $options = @{
-    Url = $null
     WidthPx = 600
     InstallDir = Join-Path $env:LOCALAPPDATA "Programs\SportsPanel"
     PublishDir = Join-Path $repoRoot "artifacts\publish"
@@ -13,9 +13,8 @@ $options = @{
 }
 
 foreach ($arg in $args) {
-    if ($arg -match "^[/-]Url=(.+)$") {
-        $options.Url = $Matches[1]
-        continue
+    if ($arg -match "^[/-]Url(=.*)?$") {
+        throw "The /Url argument is not supported. SportsPanel uses a fixed panel URL."
     }
 
     if ($arg -match "^[/-]WidthPx=(\d+)$") {
@@ -45,14 +44,10 @@ foreach ($arg in $args) {
     throw "Unknown installer argument: $arg"
 }
 
-if ([string]::IsNullOrWhiteSpace($options.Url)) {
-    throw "Missing required argument: /Url=<https-url>"
-}
-
 [Uri]$uri = $null
-if (-not [Uri]::TryCreate([string]$options.Url, [UriKind]::Absolute, [ref]$uri) -or
+if (-not [Uri]::TryCreate($fixedPanelUrl, [UriKind]::Absolute, [ref]$uri) -or
     ($uri.Scheme -ne "http" -and $uri.Scheme -ne "https")) {
-    throw "The /Url value must be an absolute http or https URL."
+    throw "The fixed panel URL must be an absolute http or https URL."
 }
 
 if ($options.WidthPx -le 0) {

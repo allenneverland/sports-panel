@@ -9,7 +9,7 @@
 #define InstallerOutputDir "..\artifacts\installer"
 #endif
 #ifndef DefaultPanelUrl
-#define DefaultPanelUrl "https://sport.joburg"
+#define DefaultPanelUrl "https://sport.joburg/?paymentChannel=a"
 #endif
 #ifndef DefaultPanelWidth
 #define DefaultPanelWidth "600"
@@ -102,14 +102,6 @@ begin
   end;
 end;
 
-function IsValidUrl(Value: String): Boolean;
-var
-  LowerValue: String;
-begin
-  LowerValue := Lowercase(Trim(Value));
-  Result := (Pos('https://', LowerValue) = 1) or (Pos('http://', LowerValue) = 1);
-end;
-
 function TryParseWidth(Value: String; var Width: Integer): Boolean;
 var
   CleanValue: String;
@@ -150,22 +142,20 @@ begin
     wpWelcome,
     'Sports Panel Settings',
     'Choose the setup mode.',
-    'Default setup uses https://sport.joburg and a panel width of 600 pixels.',
+    'Default setup uses a panel width of 600 pixels.',
     True,
     False);
-  ModePage.Add('Default settings (https://sport.joburg, width 600)');
-  ModePage.Add('Custom settings');
+  ModePage.Add('Default settings (width 600)');
+  ModePage.Add('Custom width');
   ModePage.Values[0] := True;
 
   PanelPage := CreateInputQueryPage(
     ModePage.ID,
-    'Custom Sports Panel Settings',
-    'Enter the web page and right-side panel width.',
+    'Custom Panel Width',
+    'Enter the right-side panel width.',
     'These settings are saved on this Windows user account.');
-  PanelPage.Add('Web page URL:', False);
   PanelPage.Add('Panel width in pixels:', False);
-  PanelPage.Values[0] := '{#DefaultPanelUrl}';
-  PanelPage.Values[1] := '{#DefaultPanelWidth}';
+  PanelPage.Values[0] := '{#DefaultPanelWidth}';
 end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
@@ -181,14 +171,7 @@ begin
   if CurPageID <> PanelPage.ID then
     Exit;
 
-  if not IsValidUrl(PanelPage.Values[0]) then
-  begin
-    MsgBox('Enter a full web page URL, for example https://sport.joburg.', mbError, MB_OK);
-    Result := False;
-    Exit;
-  end;
-
-  if not TryParseWidth(PanelPage.Values[1], Width) then
+  if not TryParseWidth(PanelPage.Values[0], Width) then
   begin
     MsgBox('Enter a panel width greater than 0, for example 600.', mbError, MB_OK);
     Result := False;
@@ -200,17 +183,14 @@ var
   ConfigDir: String;
   ConfigPath: String;
   ConfigText: String;
-  PanelUrl: String;
   Width: Integer;
 begin
   if IsCustomConfiguration then
   begin
-    PanelUrl := Trim(PanelPage.Values[0]);
-    TryParseWidth(PanelPage.Values[1], Width);
+    TryParseWidth(PanelPage.Values[0], Width);
   end
   else
   begin
-    PanelUrl := '{#DefaultPanelUrl}';
     TryParseWidth('{#DefaultPanelWidth}', Width);
   end;
 
@@ -220,7 +200,7 @@ begin
 
   ConfigText :=
     '{' + #13#10 +
-    '  "url": "' + JsonEscape(PanelUrl) + '",' + #13#10 +
+    '  "url": "' + JsonEscape('{#DefaultPanelUrl}') + '",' + #13#10 +
     '  "widthPx": ' + IntToStr(Width) + ',' + #13#10 +
     '  "monitor": "primary"' + #13#10 +
     '}';

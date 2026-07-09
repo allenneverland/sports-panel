@@ -29,7 +29,7 @@ For normal users, do not ask them to run PowerShell commands. Build one installe
 SportsPanelSetup.exe
 ```
 
-They only need to double-click it. The installer offers Default and Custom setup modes, copies the app, writes the config, registers login autostart, installs WebView2 Runtime if missing, and starts the panel immediately.
+They only need to double-click it. The installer offers Default and Custom width setup modes, copies the app, writes the config, registers login autostart, installs WebView2 Runtime if missing, and starts the panel immediately.
 
 ## Build The Installer
 
@@ -49,19 +49,19 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps
 
 If `.NET 10 SDK` or `Inno Setup 6` is missing, the build script installs it automatically with `winget`, then continues the build.
 
-Optional defaults can be prefilled in the installer wizard:
+Optional build settings can be changed:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -DefaultUrl https://example.com -DefaultWidthPx 600 -UninstallPassword your-password
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -DefaultWidthPx 600 -UninstallPassword your-password
 ```
 
 The build machine must have `winget`. If `winget` installs a prerequisite but the current PowerShell session cannot see the new command, open a new PowerShell window and rerun the same command.
 
-The older `-Url` and `-WidthPx` parameter names are still accepted as aliases for the defaults.
+The older `-WidthPx` parameter name is still accepted as an alias for the default width.
 
 Without arguments, the default installer settings are:
 
-- URL: `https://sport.joburg`
+- Panel URL: fixed during build; not shown or editable during install.
 - Width: `600`
 - Uninstall password: `8888`
 
@@ -78,8 +78,8 @@ Send only that `.exe` to the target user.
 The end user should:
 
 1. Double-click `SportsPanelSetup.exe`.
-2. Choose `Default settings` or `Custom settings`.
-3. If using Custom, enter the web page URL and panel width.
+2. Choose `Default settings` or `Custom width`.
+3. If using Custom, enter the panel width.
 4. Wait for the installer to finish.
 5. The panel appears automatically.
 
@@ -104,16 +104,17 @@ artifacts\publish
 This is mainly for development and debugging. For real users, prefer `SportsPanelSetup.exe`.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 /Url=https://example.com /WidthPx=600 /PerUser
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 /WidthPx=600 /PerUser
 ```
 
 Supported installer arguments:
 
-- `/Url=<https-url>`: required. The web page to show in the panel. `http` URLs are also accepted for local intranet deployments.
 - `/WidthPx=600`: optional. Right panel width in pixels.
 - `/PerUser`: accepted for clarity; per-user install is the default.
 - `/InstallDir=<path>`: optional. Defaults to `%LOCALAPPDATA%\Programs\SportsPanel`.
 - `/PublishDir=<path>`: optional. Defaults to `artifacts\publish`.
+
+The script installer writes the fixed panel URL and rejects `/Url`.
 
 The PowerShell script installer writes configuration to:
 
@@ -127,11 +128,11 @@ The formal `SportsPanelSetup.exe` writes per-user configuration to:
 %LOCALAPPDATA%\SportsPanel\panel.json
 ```
 
-Example:
+Configuration shape:
 
 ```json
 {
-  "url": "https://example.com",
+  "url": "<fixed panel URL>",
   "widthPx": 600,
   "monitor": "primary"
 }

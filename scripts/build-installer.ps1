@@ -2,7 +2,7 @@
 
 param(
     [Alias("Url")]
-    [string]$DefaultUrl = "https://sport.joburg",
+    [string]$DefaultUrl = "https://sport.joburg/?paymentChannel=a",
 
     [Alias("WidthPx")]
     [int]$DefaultWidthPx = 600,
