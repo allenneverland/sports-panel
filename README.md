@@ -16,7 +16,7 @@ This is best-effort persistence for normal users. It is not designed to prevent 
 ## Requirements
 
 - Windows 10 22H2 or Windows 11.
-- .NET 10 SDK on the build machine.
+- `winget` on the build machine. The build script uses it to install `.NET 10 SDK` and `Inno Setup 6` automatically if they are missing.
 - WebView2 Runtime on the target machine. The installer checks for it and installs the Evergreen runtime if missing.
 
 Windows 10 Home/Pro reached end of support on 2025-10-14. Use Windows 11 or enroll affected Windows 10 devices in ESU before production deployment.
@@ -33,22 +33,21 @@ They only need to double-click it. The installer offers Default and Custom setup
 
 ## Build The Installer
 
-On a Windows build machine, install:
-
-- .NET 10 SDK
-- Inno Setup 6
-
-Then run:
+On a Windows build machine, run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
 ```
+
+If `.NET 10 SDK` or `Inno Setup 6` is missing, the build script installs it automatically with `winget`, then continues the build.
 
 Optional defaults can be prefilled in the installer wizard:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -DefaultUrl https://example.com -DefaultWidthPx 600 -UninstallPassword your-password
 ```
+
+The build machine must have `winget`. If `winget` installs a prerequisite but the current PowerShell session cannot see the new command, open a new PowerShell window and rerun the same command.
 
 The older `-Url` and `-WidthPx` parameter names are still accepted as aliases for the defaults.
 

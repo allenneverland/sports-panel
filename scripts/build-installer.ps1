@@ -42,6 +42,26 @@ if ($UninstallPassword.Contains('"')) {
     throw "The -UninstallPassword value must not contain a double quote."
 }
 
+function Install-InnoSetup {
+    $winget = Get-Command "winget" -ErrorAction SilentlyContinue
+    if (-not $winget) {
+        throw "Inno Setup 6 was not found, and winget is not available to install it automatically."
+    }
+
+    Write-Host "Inno Setup 6 was not found. Installing with winget..."
+    & $winget.Source install `
+        --id JRSoftware.InnoSetup `
+        --exact `
+        --source winget `
+        --silent `
+        --accept-package-agreements `
+        --accept-source-agreements
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "winget failed to install Inno Setup 6 with exit code $LASTEXITCODE."
+    }
+}
+
 function Find-InnoSetupCompiler {
     $command = Get-Command "ISCC.exe" -ErrorAction SilentlyContinue
     if ($command) {
@@ -78,10 +98,26 @@ function Find-InnoSetupCompiler {
         }
     }
 
-    throw "Inno Setup 6 was not found. Install it from https://jrsoftware.org/isdl.php and rerun this script."
+    return $null
 }
 
-$iscc = Find-InnoSetupCompiler
+function Assert-InnoSetupCompiler {
+    $iscc = Find-InnoSetupCompiler
+    if ($iscc) {
+        return $iscc
+    }
+
+    Install-InnoSetup
+
+    $iscc = Find-InnoSetupCompiler
+    if ($iscc) {
+        return $iscc
+    }
+
+    throw "Inno Setup 6 installation finished, but ISCC.exe was still not found. Open a new PowerShell window and rerun this script."
+}
+
+$iscc = Assert-InnoSetupCompiler
 
 & (Join-Path $PSScriptRoot "publish.ps1")
 if ($LASTEXITCODE -ne 0) {
