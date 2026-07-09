@@ -43,7 +43,7 @@ function Install-DotNet10Sdk {
         --source winget `
         --silent `
         --accept-package-agreements `
-        --accept-source-agreements
+        --accept-source-agreements | Out-Host
 
     if ($LASTEXITCODE -ne 0) {
         throw "winget failed to install .NET 10 SDK with exit code $LASTEXITCODE."

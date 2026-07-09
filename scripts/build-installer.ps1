@@ -55,7 +55,7 @@ function Install-InnoSetup {
         --source winget `
         --silent `
         --accept-package-agreements `
-        --accept-source-agreements
+        --accept-source-agreements | Out-Host
 
     if ($LASTEXITCODE -ne 0) {
         throw "winget failed to install Inno Setup 6 with exit code $LASTEXITCODE."
