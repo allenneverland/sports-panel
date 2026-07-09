@@ -33,7 +33,15 @@ They only need to double-click it. The installer offers Default and Custom setup
 
 ## Build The Installer
 
-On a Windows build machine, run:
+On a Windows build machine, double-click:
+
+```text
+BuildInstaller.cmd
+```
+
+The window stays open when the build finishes so you can see the result.
+
+If you prefer PowerShell, run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1
